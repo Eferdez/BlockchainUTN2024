@@ -11,6 +11,7 @@ contract Counter3 {
     error NotOwner();
     error NotOne();
     error ContractPaused();
+    error ContractUnPaused();
 
     constructor() {
         owner = msg.sender;
@@ -37,11 +38,18 @@ contract Counter3 {
         _;
     }
 
+    modifier alreadyPaused(){
+      if (paused == false){
+         revert ContractUnPaused();
+      }
+      _;
+    }
+
     function pause() public onlyOwner notPaused {
         paused = true;
     }
 
-    function unpause() public onlyOwner {
+    function unpause() public onlyOwner alreadyPaused {
         paused = false;
     }
 
@@ -50,11 +58,11 @@ contract Counter3 {
         return counts[msg.sender];
     }
 
-    function inc() public {
+    function inc() public onlyOwner {
         counts[msg.sender] += 1;
     }
 
-    function dec() public {
+    function dec() public onlyOwner{
         counts[msg.sender] -= 1;
     }
 }
